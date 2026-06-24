@@ -1,0 +1,62 @@
+name: tests
+
+# Run on every PR to main and on direct pushes to main. The full suite
+# completes in well under a minute, so there is no point gating by path.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel in-progress runs for the same PR when a new commit is pushed.
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-type-test:
+    name: ruff + mypy + pytest (py3.11)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # uv handles both Python install (per pyproject's requires-python =
+      # "==3.11.*") and dependency resolution against the committed uv.lock,
+      # so CI builds the exact same environment Arnaud uses locally.
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.4.27"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python 3.11
+        run: uv python install 3.11
+
+      - name: Sync dependencies (with dev extras)
+        run: uv sync --frozen --extra dev
+
+      # Lint and format-check. ruff is fast enough that we run both as
+      # separate steps -- this surfaces format vs lint failures distinctly
+      # in the GitHub Actions UI.
+      - name: ruff check
+        run: uv run ruff check .
+
+      - name: ruff format --check
+        run: uv run ruff format --check .
+
+      # Strict mypy on the source tree. Tests are excluded because pytest
+      # fixtures often have looser typing conventions; revisit if test
+      # coverage on src/ tops 80% and we want full-repo strictness.
+      - name: mypy
+        run: uv run mypy src
+
+      # pytest. Tests that depend on processed Parquets skip cleanly when
+      # the files are absent (see tests/conftest.py), so this job is
+      # green on a fresh clone. The nightly retrain workflow runs the
+      # full data-dependent suite against freshly fetched parquets.
+      - name: pytest
+        run: uv run pytest -v

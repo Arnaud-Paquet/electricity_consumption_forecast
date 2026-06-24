@@ -1,0 +1,78 @@
+# Root-anchored patterns (same as NaeviScan template)
+.claude/
+.claude-*/
+.anthropic/
+claude/
+CLAUDE.md
+*.claude
+.mcp.json
+
+# Data and model artifacts — never in image
+/data/
+/models/
+/docs/
+*.pth
+*.pt
+*.ckpt
+*.pkl
+*.joblib
+*.parquet
+*.feather
+
+# Secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+.streamlit/secrets.toml
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+dist/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Virtual envs
+.venv/
+venv/
+env/
+ENV/
+.uv/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# VCS
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
+*.tmp
+tmp/
+
+# Tests and notebooks (not needed in serving image)
+tests/
+notebooks/
+scripts/
