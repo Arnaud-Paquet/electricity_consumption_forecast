@@ -213,8 +213,11 @@ def build_calendar_daily(
         freq="D",
     )
 
-    # Bank holidays using the `holidays` library
-    fr_holidays = hols.France(years=range(start_year, end_year + 1))
+    # Bank holidays using the `holidays` library. Country classes are
+    # registered lazily and not surfaced to mypy through holidays==0.58's
+    # type info, so attribute access on `hols.France` needs an explicit
+    # ignore even though it works at runtime.
+    fr_holidays = hols.France(years=range(start_year, end_year + 1))  # type: ignore[attr-defined]
 
     rows = []
     for dt in all_dates:
